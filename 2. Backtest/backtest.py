@@ -43,10 +43,6 @@ def algo_backtest(stock_data,stock_ticker):
     # Lists to store position data for visualization
     positions = []
     
-    # Lists to store returns for visualization
-    filename = "VWAP_past_year_" + stock_ticker + "Signal1_data_with_prediction.xlsx"
-    stock_data.to_excel(filename)
-
     current_balance = []
     
     stock_data['Action'] = None

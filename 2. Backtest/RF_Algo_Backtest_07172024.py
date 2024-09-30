@@ -11,7 +11,7 @@ import backtest as bt
 
 
 
-def main(stock_ticker,interval,shorter_interval,method,span):
+def main(stock_ticker,aggregation_window,shorter_aggregation_window,method,full_data_span):
     
     # import historical data
     
@@ -21,7 +21,7 @@ def main(stock_ticker,interval,shorter_interval,method,span):
     #bounds (str, optional):  The possible values are [“extended”, “regular”, “trading”].
     #info (str, optional):  The possible values are [“open_price”, “close_price”, “high_price”, “low_price”, “volume”, “begins_at”, “session”, “interpolated”].
 
-    stock_data = rs.get_stock_historicals(stock_ticker, interval=interval, span=span, bounds="regular")    
+    stock_data = rs.get_stock_historicals(stock_ticker, interval=aggregation_window, span=full_data_span, bounds="regular")    
     
     method ="ML"    
     # get processed stock_data and the testing and training data
@@ -31,7 +31,7 @@ def main(stock_ticker,interval,shorter_interval,method,span):
     stock_data = dp.check_if_today_trading_date(stock_data)
     
     #predicted series
-    y_pred_series = ml.train_data(stock_data, testing_start_date, training_start_date)
+    y_pred_series = ml.train_data(stock_data, testing_start_date, training_start_date,stock_ticker)
     
     #testing the performance
     bt.ml_backtest(stock_data, testing_start_date, today, y_pred_series, stock_ticker)

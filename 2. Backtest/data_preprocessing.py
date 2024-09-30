@@ -39,24 +39,27 @@ def main_data_processing (stock_data,method):
 
 
 
-def todays_data(stock_ticker,shorter_interval):
+def todays_data(stock_ticker,shorter_aggregation_window):
     #adding today's data to the analysis
-    span = "day"
-    stock_data_shorter_interval = rs.get_stock_historicals(stock_ticker, interval=shorter_interval, span=span, bounds="regular")
-    stock_data_shorter_interval = pd.DataFrame.from_dict(stock_data_shorter_interval)
-    stock_data_shorter_interval[['close_price', 'high_price','low_price','open_price','volume']] = stock_data_shorter_interval[['close_price', 'high_price','low_price','open_price','volume']].apply(pd.to_numeric, errors='coerce')
+    shorter_span = "day"
+    stock_data_shorter_aggregation_window = rs.get_stock_historicals(stock_ticker, interval=shorter_aggregation_window, span=shorter_span, bounds="regular")
+    stock_data_shorter_aggregation_window = pd.DataFrame.from_dict(stock_data_shorter_aggregation_window)
+    stock_data_shorter_aggregation_window[['close_price', 'high_price','low_price','open_price','volume']] = stock_data_shorter_aggregation_window[['close_price', 'high_price','low_price','open_price','volume']].apply(pd.to_numeric, errors='coerce')
     filename = "5_minutes_data_of_today for "+ stock_ticker+".xlsx"
-    stock_data_shorter_interval.to_excel(filename)    
-    todays_data = pd.DataFrame({'begins_at':[stock_data_shorter_interval['begins_at'].iloc[0]],
-                                'open_price':[stock_data_shorter_interval['open_price'].iloc[0]],
-                                'high_price':[stock_data_shorter_interval['high_price'].max()],
-                                'low_price':[stock_data_shorter_interval['low_price'].min()],
-                                'close_price':[stock_data_shorter_interval['close_price'].iloc[-1]],
-                                'volume':[stock_data_shorter_interval['volume'].sum()],
-                                'session':[stock_data_shorter_interval['session'].iloc[0]],
-                                'interpolated':[stock_data_shorter_interval['interpolated'].iloc[0]],
-                                'symbol':[stock_data_shorter_interval['symbol'].iloc[0]]
+    stock_data_shorter_aggregation_window.to_excel(filename)    
+    todays_data = pd.DataFrame({'begins_at':[stock_data_shorter_aggregation_window['begins_at'].iloc[0]],
+                                'open_price':[stock_data_shorter_aggregation_window['open_price'].iloc[0]],
+                                'high_price':[stock_data_shorter_aggregation_window['high_price'].max()],
+                                'low_price':[stock_data_shorter_aggregation_window['low_price'].min()],
+                                'close_price':[stock_data_shorter_aggregation_window['close_price'].iloc[-1]],
+                                'volume':[stock_data_shorter_aggregation_window['volume'].sum()],
+                                'session':[stock_data_shorter_aggregation_window['session'].iloc[0]],
+                                'interpolated':[stock_data_shorter_aggregation_window['interpolated'].iloc[0]],
+                                'symbol':[stock_data_shorter_aggregation_window['symbol'].iloc[0]]
                                 })
+    filename = "5_min_data" + stock_ticker + ".xlsx"
+    stock_data_shorter_aggregation_window.to_excel(filename)
+    
     return todays_data
 
 
@@ -93,16 +96,22 @@ def time_definition_algo():
 
 
 def check_if_today_trading_date(stock_data):
+
+    
     # Check if the last line's date matches today's date
     if stock_data['begins_at'].iloc[-1].date() == last_weekday_including_today().date():
         print("The last line of 'begins_at' is the latest trading day.")
         
     else:
-        print("The last line of 'begins_at' is not the latest trading day.")
-        #Appending today's data to the main dataframe
-        stock_data = pd.concat([stock_data, todays_data ], ignore_index=True)
+        try: 
+            print("The last line of 'begins_at' is not the latest trading day.")
+            #Appending today's data to the main dataframe
+            stock_data = pd.concat([stock_data, todays_data ], ignore_index=True)
+            
+            stock_data['begins_at'] = pd.to_datetime(stock_data['begins_at'])
+            # Remove the timezone information to make the datetime objects naive
+            stock_data['begins_at'] = stock_data['begins_at'].dt.tz_localize(None)
         
-        stock_data['begins_at'] = pd.to_datetime(stock_data['begins_at'])
-        # Remove the timezone information to make the datetime objects naive
-        stock_data['begins_at'] = stock_data['begins_at'].dt.tz_localize(None)
+        except TypeError:
+            print("cannot concatenate object of type '<class 'function'>'")    
     return stock_data
