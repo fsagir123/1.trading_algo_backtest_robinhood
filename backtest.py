@@ -8,18 +8,41 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,stock_ticker,ML_algo):
+def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,stock_ticker,methodology,ML_algo,y_pred_prices=None, y_test_prices=None):
     # Perform a simple backtest
     past_year_stock_data = stock_data[(stock_data['begins_at'] >= testing_start_date) & (stock_data['begins_at'] <= today)]
     y_pred_series.index = past_year_stock_data.index
-    past_year_stock_data['Actual'] = y_test_series.values
+    
+
+    if y_pred_prices is not None:
+        past_year_stock_data['Predicted_next_Day_Price'] = y_pred_prices
+    else:
+        past_year_stock_data['Predicted_next_Day_Price'] = None
+
+    if y_test_prices is not None:
+        past_year_stock_data['Next_Day_Price'] = y_test_prices.values
+    else:
+        past_year_stock_data['Next_Day_Price']= None
+    
+    past_year_stock_data = past_year_stock_data[[
+    'begins_at', 'open_price', 'high_price', 'low_price', 'volume', 'session', 'interpolated', 'symbol',
+    'SMA_20', 'EMA_20', 'RSI', 'EMA_12', 'EMA_26', 'MACD', 'MACD_Signal', 'BB_Mid', 'BB_Upper', 'BB_Lower',
+    'Stochastic', 'Volume', 'ATR', 'OBV', 'close_price',  # Move close_price here
+    'Next_Day_Price', 'Next_Day_Percentage_Change',  # Next_Day_Percentage_Change follows Next_Day_Price
+    'Next_Day_Price_Binary', 'Predicted_next_Day_Price'
+]]
+    
     past_year_stock_data.loc[:,'Predicted_Signal'] = y_pred_series
     past_year_stock_data.loc[:,'Actual_Return'] = past_year_stock_data['close_price'].pct_change() * past_year_stock_data['Predicted_Signal'].shift(1)
     cumulative_returns = past_year_stock_data['Actual_Return'].cumsum()
     cumulative_returns_percent = past_year_stock_data['Actual_Return'].cumsum()*100
     initial_balance = 1000
     final_balance = 1000*(cumulative_returns.iat[-1]+1)
-    filename = ML_algo + stock_ticker + "_data_with_prediction.xlsx"
+    
+
+    
+    
+    filename = ML_algo + methodology + stock_ticker + "_data_with_prediction.xlsx"
     past_year_stock_data.to_excel(filename)
     print(f"Initial Balance: ${initial_balance:.2f}")
     print(f"Final Balance: ${final_balance:.2f}")
@@ -33,7 +56,7 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
     plt.legend()
     plt.show()
     # Return the results
-    return stock_ticker,ML_algo, initial_balance, final_balance, cumulative_returns.iloc[-1]*100
+    return stock_ticker,ML_algo,methodology, initial_balance, final_balance, cumulative_returns.iloc[-1]*100
     
     
 def algo_backtest(stock_data,stock_ticker,Manual_algo):
@@ -89,6 +112,6 @@ def algo_backtest(stock_data,stock_ticker,Manual_algo):
     print(f"Total Return: {(final_balance - initial_balance) / initial_balance * 100:.2f}%")
 
     # Return the results
-    return stock_ticker, Manual_algo, initial_balance, final_balance, (final_balance - initial_balance) / initial_balance * 100
+    return stock_ticker, Manual_algo, None , initial_balance, final_balance, (final_balance - initial_balance) / initial_balance * 100
 
                                     
