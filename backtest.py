@@ -15,7 +15,7 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
     
 
     if y_pred_prices is not None:
-        past_year_stock_data['Predicted_next_Day_Price'] = y_pred_prices
+        past_year_stock_data['Predicted_next_Day_Price'] = y_pred_prices.values
     else:
         past_year_stock_data['Predicted_next_Day_Price'] = None
 
