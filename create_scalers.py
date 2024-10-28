@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct 17 15:19:00 2024
-
-@author: fsagir
-"""
+import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 def create_scalers(X, y, task_type):
@@ -11,8 +7,16 @@ def create_scalers(X, y, task_type):
     scaler_X = StandardScaler()
     scaler_y = MinMaxScaler() if task_type == 'regression' else None
 
-    # Fit scalers
+    # Fit scalers and convert back to DataFrame
     X_scaled = scaler_X.fit_transform(X)
-    y_scaled = scaler_y.fit_transform(y.values.reshape(-1, 1)) if task_type == 'regression' else y
+    #X_scaled = pd.DataFrame(X_scaled, columns=X.columns)  # Convert back to DataFrame
+
+    if task_type == 'regression':
+        y_scaled = scaler_y.fit_transform(y.values.reshape(-1, 1))
+        y_scaled = np.array(y_scaled)
+        
+        #y_scaled = pd.DataFrame(y_scaled, columns=['target'])  # Convert back to DataFrame
+    else:
+        y_scaled = np.array(y)
 
     return X_scaled, y_scaled, scaler_X, scaler_y

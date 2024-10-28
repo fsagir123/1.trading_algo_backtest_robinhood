@@ -74,7 +74,6 @@ def feature_engineering(stock_data):
     # close price next day as the target variable
     stock_data['Next_Day_Price'] = stock_data['close_price'].shift(-1)
     
-    
     # Drop all rows with any NaN values
     stock_data = stock_data.dropna()
     

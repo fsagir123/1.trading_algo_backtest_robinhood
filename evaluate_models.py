@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def evaluate_models(y_pred_series_tpot, y_pred_series_lstm, y_test_series, task_type):
+def evaluate_models(y_pred_series_tpot, y_pred_series_lstm, y_test_series, task_type,stock_ticker):
     if task_type == 'classification':
         accuracy_tpot = accuracy_score(y_pred_series_tpot, y_test_series)
         print(f'TPOT Classification Accuracy: {accuracy_tpot:.2f}')
@@ -33,7 +33,7 @@ def evaluate_models(y_pred_series_tpot, y_pred_series_lstm, y_test_series, task_
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve for TPOT vs LSTM (Classification)')
+        plt.title(f'ROC Curve for {stock_ticker} - TPOT vs LSTM (Classification)')
         plt.legend(loc='lower right')
         plt.show()
 
@@ -56,10 +56,11 @@ def evaluate_models(y_pred_series_tpot, y_pred_series_lstm, y_test_series, task_
         plt.plot(y_test_series, label='Actual', color='black')
         plt.plot(y_pred_series_tpot, label='TPOT Predictions', color='blue', alpha=0.7)
         plt.plot(y_pred_series_lstm, label='LSTM Predictions', color='green', alpha=0.7)
-        plt.title('TPOT vs LSTM Predictions')
+
         plt.xlabel('Days')
-        plt.ylabel('Next Day Price')
+        plt.ylabel('Next Day Price Change (%)')
         plt.legend()
+        plt.title('TPOT vs LSTM Predictions for {stock_ticker} - % returns (Regression)')
         plt.show()
 
         y_pred_binary_tpot = pd.Series((y_pred_series_tpot > y_test_series).astype(int))

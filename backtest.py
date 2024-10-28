@@ -54,6 +54,7 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
     plt.xlabel('Date')
     plt.ylabel('Cumulative Returns Percent')
     plt.legend()
+    plt.title(f'Cumulative Returns for {stock_ticker} using {ML_algo} {methodology}')
     plt.show()
     # Return the results
     return stock_ticker,ML_algo,methodology, initial_balance, final_balance, cumulative_returns.iloc[-1]*100
@@ -105,6 +106,7 @@ def algo_backtest(stock_data,stock_ticker,Manual_algo):
     
     ax = stock_data.plot(x='begins_at', y='cumulative_returns percent', kind='line', label='cumulative_returns percent')
     stock_data.plot(x='begins_at', y='vwap', kind='line', label='vwap', ax=ax, secondary_y=True)
+    plt.title(f'Cumulative Returns and VWAP for {stock_ticker}')
     plt.show()
     # Print the results
     print(f"Initial Balance: ${initial_balance:.2f}")

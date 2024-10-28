@@ -18,11 +18,11 @@ def main_data_processing (stock_data,method):
     stock_data['begins_at'] = stock_data['begins_at'].dt.tz_localize(None)
     
     if method =="ML":
-        today, testing_start_date,training_start_date = time_definition_ml()
-        stock_data = stock_data[(stock_data['begins_at'] >= training_start_date) & (stock_data['begins_at'] <= today)]
+        today, data_sequencing_start_date,training_start_date, testing_start_date = time_definition_ml()
+        stock_data = stock_data[(stock_data['begins_at'] >= data_sequencing_start_date) & (stock_data['begins_at'] <= today)]
         #converting numbers to numbers
         stock_data[['close_price', 'high_price','low_price','open_price','volume']] = stock_data[['close_price', 'high_price','low_price','open_price','volume']].apply(pd.to_numeric, errors='coerce')
-        return stock_data, today, testing_start_date,training_start_date
+        return stock_data, today, data_sequencing_start_date,training_start_date, testing_start_date
     if method == "Algo":
         today, testing_start_date= time_definition_algo()
         stock_data = stock_data[(stock_data['begins_at'] >= testing_start_date) & (stock_data['begins_at'] <= today)]
@@ -69,16 +69,29 @@ def time_definition_ml():
     now = datetime.now()
     today = now
     today = pd.to_datetime(today)
+    
+    data_sequencing_window = 60  
+    #Needs to be more than 20 for training window
+    training_window = 60
+    testing_window = 365
+    
+    days_from_today_for_data_sequencing = data_sequencing_window + training_window + testing_window
+    days_from_today_for_training = training_window + testing_window
+    days_from_today_for_testing = testing_window
+    
+    data_sequencing_start_date = now - timedelta(days=days_from_today_for_data_sequencing)
+    data_sequencing_start_date = pd.to_datetime(data_sequencing_start_date)
 
-
-    training_start_date = now - timedelta(days=365 * 0 + 90 )
+    
+    training_start_date = now - timedelta(days=days_from_today_for_training)
     training_start_date = pd.to_datetime(training_start_date)
     
-    testing_start_date = now - timedelta(days=365 * 0 +  10 )
+    testing_start_date = now - timedelta(days=days_from_today_for_testing)
     testing_start_date = pd.to_datetime(testing_start_date)
+    
 
         
-    return today, testing_start_date, training_start_date
+    return today, data_sequencing_start_date,training_start_date, testing_start_date
 
 def time_definition_algo():
     now = datetime.now()

@@ -34,7 +34,7 @@ def main(stock_ticker,interval,shorter_interval,method,span):
     stock_data = dp.check_if_today_trading_date(stock_data)
     
     #algo run
-    stock_data = al.algo(stock_data)
+    stock_data = al.algo(stock_data,stock_ticker)
     
 
     #testing the performance

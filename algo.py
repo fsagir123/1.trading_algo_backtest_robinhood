@@ -8,7 +8,7 @@ Created on Sun Jul 21 14:58:33 2024
 import numpy as np
 import matplotlib.pyplot as plt
 
-def algo(stock_data):
+def algo(stock_data,stock_ticker):
     # Resetting index to start from 0
     stock_data = stock_data.reset_index(drop=True)
     
@@ -32,5 +32,6 @@ def algo(stock_data):
     
     ax = stock_data.plot(x='begins_at', y='close_price', kind='line', label='close_price')
     stock_data.plot(x='begins_at', y='vwap', kind='line', label='vwap', ax=ax, secondary_y=True)
+    plt.title(f'Close price and VWAP for {stock_ticker}')
     plt.show()
     return stock_data

@@ -26,14 +26,14 @@ def main(stock_ticker,aggregation_window,shorter_aggregation_window,method,full_
     method ="ML"    
     
     # Data preprocessing
-    stock_data, today, testing_start_date, training_start_date  = dp.main_data_processing(stock_data,method)
+    stock_data, today, data_sequencing_start_date,training_start_date, testing_start_date  = dp.main_data_processing(stock_data,method)
     #todays data added to the stock_data
     stock_data = dp.check_if_today_trading_date(stock_data)
     #predicted series
     stock_data = feature_engineering(stock_data)
     
     task_type = "classification"
-    y_pred_series_tpot, y_pred_series_lstm, y_test_series = train_test_data(stock_data,testing_start_date,training_start_date,stock_ticker,task_type)
+    y_pred_series_tpot, y_pred_series_lstm, y_test_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
     
     # Backtest Ensemble Classification
     ML_algo="Ensemble"
@@ -48,7 +48,7 @@ def main(stock_ticker,aggregation_window,shorter_aggregation_window,method,full_
     
     
     task_type = "regression"
-    y_pred_series_tpot, y_pred_series_lstm, y_test_series,y_pred_binary_tpot, y_pred_binary_lstm, y_test_binary_series = train_test_data(stock_data,testing_start_date,training_start_date,stock_ticker,task_type)
+    y_pred_series_tpot, y_pred_series_lstm, y_test_series,y_pred_binary_tpot, y_pred_binary_lstm, y_test_binary_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
     
     # Backtest Ensemble Regression
     ML_algo="Ensemble"
