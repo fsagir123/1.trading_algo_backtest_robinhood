@@ -4,8 +4,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 def create_scalers(X, y, task_type):
     # Initialize scalers for X and y
-    scaler_X = StandardScaler()
-    scaler_y = MinMaxScaler() if task_type == 'regression' else None
+    scaler_X = MinMaxScaler(feature_range=(0,1))
+    scaler_y = MinMaxScaler(feature_range=(0,1)) if task_type == 'regression' else None
 
     # Fit scalers and convert back to DataFrame
     X_scaled = scaler_X.fit_transform(X)

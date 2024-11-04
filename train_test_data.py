@@ -27,25 +27,46 @@ def train_test_data(stock_data,data_sequencing_start_date,training_start_date, t
     training_window = len(stock_data[(stock_data['begins_at'] >= training_start_date) & (stock_data['begins_at'] < testing_start_date)])
     rolling_window_range = len(stock_data) - sequencing_window - training_window
     
+    print(stock_data.shape)
+    print(sequencing_window,training_window,rolling_window_range)
+    print(data_sequencing_start_date,training_start_date,testing_start_date)
+    
+    
+    
     
 
-    X_scaled, y_scaled, scaler_X, scaler_y = create_scalers(X, y, task_type)
+    
     
 
-    epochs = 5
+    epochs = 50
     count = 1
     y_pred_series_tpot = pd.Series(dtype=float)
     y_pred_series_lstm = pd.Series(dtype=float)
     y_test_series = pd.Series(dtype=float)
     
-    X_sequenced_scaled = data_sequencing(X_scaled,sequencing_window)
-    y_sequenced_trimmed = y_scaled[sequencing_window:]
+
 
     for day in range(rolling_window_range):
         # Rolling 365-day window to train data
         
-        X_train, y_train = X_scaled[day+sequencing_window:day+sequencing_window+training_window], y_scaled[day+sequencing_window:day+sequencing_window+training_window]
-        X_train_sequenced,y_train_sequenced = X_sequenced_scaled[day:day+training_window], y_sequenced_trimmed[day:day+training_window]
+        if count ==1:
+        
+            X_train, y_train = X[day+sequencing_window:day+sequencing_window+training_window], y[day+sequencing_window:day+sequencing_window+training_window]
+            X_train_scaled, y_train_scaled, scaler_X, scaler_y = create_scalers(X_train, y_train, task_type)
+            X_scaled = scaler_X.transform(X)
+
+            if task_type == "regression":
+                y_scaled = scaler_y.transform(y.values.reshape(-1,1))
+            elif task_type =="classification":
+                y_scaled = y
+            
+            X_scaled_sequenced = data_sequencing(X_scaled,sequencing_window)
+
+            y_scaled_trimmed = np.array(y_scaled[sequencing_window:])
+           
+            X_train_sequenced,y_train_sequenced = X_scaled_sequenced[day:day+training_window], y_scaled_trimmed[day:day+training_window]
+
+            
         # Train models
         if count == 1:
             best_pipeline = train_model(X_train, y_train, task_type)
@@ -55,34 +76,56 @@ def train_test_data(stock_data,data_sequencing_start_date,training_start_date, t
             num_features = int(X_train_sequenced.shape[2])
             lstm_model = create_lstm_model((time_steps,num_features), task_type=task_type, use_learnable_query=False, use_multihead_attention=False)  # Create LSTM model
 
+        if count ==1:
 
-        X_train_lstm = np.reshape(X_train_sequenced, (samples, time_steps, num_features))
-        print(X_train_lstm.shape)
+            X_train_lstm = np.reshape(X_train_sequenced, (samples, time_steps, num_features))
 
-        fit_lstm_model(X_train_lstm, y_train_sequenced, epochs, lstm_model)
 
-        # Prepare test data
-        print(day,sequencing_window,training_window)        
-        print(X_scaled.shape, y_scaled.shape)
+            fit_lstm_model(X_train_lstm, y_train_sequenced, epochs, lstm_model)
+
+            # Prepare test data
+
         
-
+        print(X_scaled.shape, y_scaled.shape)
+        print(day,sequencing_window,training_window)
+        print(X_scaled[70])
+        y_scaled =np.array(y_scaled)
+        print(y_scaled[70])
+        
         X_test, y_test = X_scaled[day+sequencing_window+training_window], y_scaled[day+sequencing_window+training_window]
         X_test = np.reshape(X_test, (1, -1))  # Reshape to (1, 1, num_features)
 
         
-        X_test_sequenced, y_test_sequenced = X_sequenced_scaled[day+training_window], y_sequenced_trimmed[day+training_window]
+        X_test_sequenced, y_test_sequenced = X_scaled_sequenced[day+training_window], y_scaled_trimmed[day+training_window]
 
-        X_test_lstm = np.reshape(X_test_sequenced, (1, time_steps , num_features))  # Reshape to (1, 1, num_features)
+        X_test_lstm = np.reshape(X_test_sequenced, (1, time_steps , num_features))  # Reshape to (1, time_steps, num_features)
 
         # TPOT and LSTM predictions
-        y_pred_tpot = pd.Series(best_pipeline.predict(X_test))
-        y_pred_lstm = pd.Series((lstm_model.predict(X_test_lstm) > 0.50).astype("int32")[0])
-
-        y_test = pd.Series(y_test)
+        
+        if task_type == "classification":
+            y_pred_lstm = pd.Series((lstm_model.predict(X_test_lstm) > 0.50).astype("int32")[0])
+            y_pred_tpot = pd.Series(best_pipeline.predict(X_test))
+            
+        
+        if task_type == "regression":
+            y_pred_lstm =  scaler_y.inverse_transform(lstm_model.predict(X_test_lstm))
+            y_pred_lstm = pd.Series(y_pred_lstm.flatten())
+            
+            y_pred_tpot = pd.Series(best_pipeline.predict(X_test))
+            y_pred_tpot = scaler_y.inverse_transform(y_pred_tpot.values.reshape(-1,1))
+            
+            
+            y_test = pd.Series(scaler_y.inverse_transform(y_test.reshape(-1,1))[0])
+        
+        y_test = pd.DataFrame([y_test])
+        y_pred_tpot = pd.DataFrame(y_pred_tpot)
+        
 
         if day == 0:
             y_pred_series_tpot = y_pred_tpot
             y_pred_series_lstm = y_pred_lstm
+            print(type(y_test))
+            print(y_test)
             y_test_series = y_test
         else:
             y_pred_series_tpot = pd.concat([y_pred_series_tpot, y_pred_tpot])

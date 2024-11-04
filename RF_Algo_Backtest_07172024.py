@@ -24,7 +24,7 @@ def main(stock_ticker,aggregation_window,shorter_aggregation_window,method,full_
 
     stock_data = rs.get_stock_historicals(stock_ticker, interval=aggregation_window, span=full_data_span, bounds="regular")    
     method ="ML"    
-    
+
     # Data preprocessing
     stock_data, today, data_sequencing_start_date,training_start_date, testing_start_date  = dp.main_data_processing(stock_data,method)
     #todays data added to the stock_data

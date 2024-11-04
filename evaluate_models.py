@@ -63,8 +63,8 @@ def evaluate_models(y_pred_series_tpot, y_pred_series_lstm, y_test_series, task_
         plt.title('TPOT vs LSTM Predictions for {stock_ticker} - % returns (Regression)')
         plt.show()
 
-        y_pred_binary_tpot = pd.Series((y_pred_series_tpot > y_test_series).astype(int))
-        y_pred_binary_lstm = pd.Series((y_pred_series_lstm > y_test_series).astype(int))
-        y_test_binary_series = pd.Series((y_test_series > y_test_series.shift(1)).astype(int))
+        y_pred_binary_tpot = pd.Series((y_pred_series_tpot.values.flatten() > 0).astype(int))
+        y_pred_binary_lstm = pd.Series((y_pred_series_lstm.values.flatten() > 0).astype(int))
+        y_test_binary_series = pd.Series((y_test_series.values.flatten() > 0).astype(int))
 
         return y_pred_series_tpot, y_pred_series_lstm, y_test_series, y_pred_binary_tpot, y_pred_binary_lstm, y_test_binary_series

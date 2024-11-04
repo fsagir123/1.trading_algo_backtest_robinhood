@@ -13,6 +13,8 @@ def main_data_processing (stock_data,method):
     #convert from dictionary to dataframe
     
     stock_data = pd.DataFrame.from_dict(stock_data)
+
+    
     stock_data['begins_at'] = pd.to_datetime(stock_data['begins_at'])
     # Remove the timezone information to make the datetime objects naive
     stock_data['begins_at'] = stock_data['begins_at'].dt.tz_localize(None)
@@ -20,6 +22,7 @@ def main_data_processing (stock_data,method):
     if method =="ML":
         today, data_sequencing_start_date,training_start_date, testing_start_date = time_definition_ml()
         stock_data = stock_data[(stock_data['begins_at'] >= data_sequencing_start_date) & (stock_data['begins_at'] <= today)]
+
         #converting numbers to numbers
         stock_data[['close_price', 'high_price','low_price','open_price','volume']] = stock_data[['close_price', 'high_price','low_price','open_price','volume']].apply(pd.to_numeric, errors='coerce')
         return stock_data, today, data_sequencing_start_date,training_start_date, testing_start_date
@@ -70,9 +73,9 @@ def time_definition_ml():
     today = now
     today = pd.to_datetime(today)
     
-    data_sequencing_window = 60  
+    data_sequencing_window = 50
     #Needs to be more than 20 for training window
-    training_window = 60
+    training_window = 365*4 - 50
     testing_window = 365
     
     days_from_today_for_data_sequencing = data_sequencing_window + training_window + testing_window
@@ -82,13 +85,13 @@ def time_definition_ml():
     data_sequencing_start_date = now - timedelta(days=days_from_today_for_data_sequencing)
     data_sequencing_start_date = pd.to_datetime(data_sequencing_start_date)
 
+
     
     training_start_date = now - timedelta(days=days_from_today_for_training)
     training_start_date = pd.to_datetime(training_start_date)
-    
+
     testing_start_date = now - timedelta(days=days_from_today_for_testing)
     testing_start_date = pd.to_datetime(testing_start_date)
-    
 
         
     return today, data_sequencing_start_date,training_start_date, testing_start_date

@@ -69,7 +69,7 @@ def feature_engineering(stock_data):
     stock_data['Next_Day_Price_Binary'] = np.where(stock_data['close_price'].shift(-1) > stock_data['close_price'], 1, 0)
     
     # Calculate percentage change as the target variable
-    stock_data['Next_Day_Percentage_Change'] = stock_data['close_price'].shift(-1).pct_change() * 100
+    stock_data['Next_Day_Percentage_Change'] = stock_data['close_price'].pct_change().shift(-1) * 100
     
     # close price next day as the target variable
     stock_data['Next_Day_Price'] = stock_data['close_price'].shift(-1)

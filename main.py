@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 login.main()
 
 #Define the tickers of interest
-stock_ticker = ["TSLA","AAPL"]
+stock_ticker = ["NFE","PLUG"]
 #Define the time periods of interest
 # options - 5minute”, “10minute”, “hour”, “day”
 aggregation_window = ["day"]
@@ -38,10 +38,12 @@ if __name__ == '__main__':
     
   for stock in stock_ticker:
         for window in aggregation_window:
+
             # ML Backtest
             print_method_name(f"ML Backtest for {stock} and interval {window}")
             ml_results = RF_Algo_Backtest_07172024.main(stock, window, shorter_aggregation_window[0], 'ML', full_data_span[0])
             results.extend(ml_results)
+            
 
             # VWAP Backtest
             print_method_name(f"VWAP Backtest for {stock} and interval {window}")

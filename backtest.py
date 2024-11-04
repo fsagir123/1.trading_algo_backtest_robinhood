@@ -15,21 +15,21 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
     
 
     if y_pred_prices is not None:
-        past_year_stock_data['Predicted_next_Day_Price'] = y_pred_prices.values
+        past_year_stock_data['Predicted_next_Day_Price_%_increase'] = y_pred_prices.values
     else:
-        past_year_stock_data['Predicted_next_Day_Price'] = None
+        past_year_stock_data['Predicted_next_Day_Price_%_increase'] = None
 
     if y_test_prices is not None:
-        past_year_stock_data['Next_Day_Price'] = y_test_prices.values
+        past_year_stock_data['Next_Day_Price_%_increase'] = y_test_prices.values
     else:
-        past_year_stock_data['Next_Day_Price']= None
+        past_year_stock_data['Next_Day_Price_%_increase']= None
     
     past_year_stock_data = past_year_stock_data[[
     'begins_at', 'open_price', 'high_price', 'low_price', 'volume', 'session', 'interpolated', 'symbol',
     'SMA_20', 'EMA_20', 'RSI', 'EMA_12', 'EMA_26', 'MACD', 'MACD_Signal', 'BB_Mid', 'BB_Upper', 'BB_Lower',
     'Stochastic', 'Volume', 'ATR', 'OBV', 'close_price',  # Move close_price here
-    'Next_Day_Price', 'Next_Day_Percentage_Change',  # Next_Day_Percentage_Change follows Next_Day_Price
-    'Next_Day_Price_Binary', 'Predicted_next_Day_Price'
+    'Next_Day_Price',"Next_Day_Percentage_Change","Predicted_next_Day_Price_%_increase", # Next_Day_Percentage_Change follows Next_Day_Price
+    'Next_Day_Price_Binary'
 ]]
     
     past_year_stock_data.loc[:,'Predicted_Signal'] = y_pred_series
