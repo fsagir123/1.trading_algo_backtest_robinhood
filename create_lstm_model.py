@@ -36,6 +36,7 @@ def create_lstm_model(input_shape, task_type='classification', use_learnable_que
     model.add(BatchNormalization())
     model.add(Dense(units=1,activation = "sigmoid"))
     model.summary()
+
     
 
     # Conditional addition of learnable query
@@ -63,9 +64,13 @@ def create_lstm_model(input_shape, task_type='classification', use_learnable_que
     elif task_type == 'classification':
         optimizer = "adam"
         loss_function = 'binary_crossentropy'  # Binary crossentropy for binary classification
+        
     else:
         raise ValueError("Invalid task type. Use 'regression' or 'classification'.")
     
+    
+    
+    model.summary()
     # Compile the model
     model.compile(optimizer=optimizer, loss=loss_function)
     

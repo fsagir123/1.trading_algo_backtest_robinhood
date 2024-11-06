@@ -75,8 +75,8 @@ def time_definition_ml():
     
     data_sequencing_window = 50
     #Needs to be more than 20 for training window
-    training_window = 365*4 - 50
-    testing_window = 365
+    training_window = 4*365-50
+    testing_window = 1*365
     
     days_from_today_for_data_sequencing = data_sequencing_window + training_window + testing_window
     days_from_today_for_training = training_window + testing_window

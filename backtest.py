@@ -33,6 +33,7 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
 ]]
     
     past_year_stock_data.loc[:,'Predicted_Signal'] = y_pred_series
+    total_buy_signals = int(y_pred_series.sum())
     past_year_stock_data.loc[:,'Actual_Return'] = past_year_stock_data['close_price'].pct_change() * past_year_stock_data['Predicted_Signal'].shift(1)
     cumulative_returns = past_year_stock_data['Actual_Return'].cumsum()
     cumulative_returns_percent = past_year_stock_data['Actual_Return'].cumsum()*100
@@ -57,7 +58,7 @@ def ml_backtest(stock_data,testing_start_date,today,y_pred_series,y_test_series,
     plt.title(f'Cumulative Returns for {stock_ticker} using {ML_algo} {methodology}')
     plt.show()
     # Return the results
-    return stock_ticker,ML_algo,methodology, initial_balance, final_balance, cumulative_returns.iloc[-1]*100
+    return stock_ticker,ML_algo,methodology, initial_balance, final_balance, cumulative_returns.iloc[-1]*100,total_buy_signals
     
     
 def algo_backtest(stock_data,stock_ticker,Manual_algo):
@@ -93,7 +94,7 @@ def algo_backtest(stock_data,stock_ticker,Manual_algo):
     current_balance = pd.DataFrame(current_balance) 
     returns = current_balance.pct_change()
     cumulative_returns_percent = ((1+returns).cumprod().subtract(1))*100    
-        
+    total_buy_signals = stock_data['Action'][stock_data['Action'] > 0].sum()   
 
     # Calculate the final balance
     final_balance = balance if position == 0 else position * stock_data['close_price'].iloc[-1]+balance
@@ -114,6 +115,6 @@ def algo_backtest(stock_data,stock_ticker,Manual_algo):
     print(f"Total Return: {(final_balance - initial_balance) / initial_balance * 100:.2f}%")
 
     # Return the results
-    return stock_ticker, Manual_algo, None , initial_balance, final_balance, (final_balance - initial_balance) / initial_balance * 100
+    return stock_ticker, Manual_algo, None , initial_balance, final_balance, (final_balance - initial_balance) / initial_balance * 100,total_buy_signals
 
                                     

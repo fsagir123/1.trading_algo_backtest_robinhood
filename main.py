@@ -26,7 +26,7 @@ def print_method_name(text):
 
 def save_results_to_excel(results, filename):
     # Create a DataFrame from the results
-    results_df = pd.DataFrame(results, columns=['Stock Ticker', 'Algorithm',"methodology", 'Initial Balance', 'Final Balance', 'Cumulative Returns (%)'])    
+    results_df = pd.DataFrame(results, columns=['Stock Ticker', 'Algorithm',"methodology", 'Initial Balance', 'Final Balance', 'Cumulative Returns (%)',"Total Buy Signals"])    
     # Save to Excel
     results_df.to_excel(filename, index=False)
     print(f"Results saved to {filename}")    

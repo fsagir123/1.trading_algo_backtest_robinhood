@@ -32,37 +32,33 @@ def main(stock_ticker,aggregation_window,shorter_aggregation_window,method,full_
     #predicted series
     stock_data = feature_engineering(stock_data)
     
-    task_type = "classification"
-    y_pred_series_tpot, y_pred_series_lstm, y_test_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
-    
-    # Backtest Ensemble Classification
-    ML_algo="Ensemble"
-    print(printing_method_name(" Ensemble Classification Backtest for "+stock_ticker)) 
-    Ensemble_results_classification = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_series_tpot, y_test_series, stock_ticker,task_type,ML_algo)
-   
-    # Backtest LSTM Classification   
-    ML_algo="LSTM"
-    print(printing_method_name(" LSTM Classification Backtest for "+stock_ticker))    
-    #testing the performance
-    LSTM_results_classification = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_series_lstm, y_test_series, stock_ticker,task_type,ML_algo)
-    
-    
-    task_type = "regression"
-    y_pred_series_tpot, y_pred_series_lstm, y_test_series,y_pred_binary_tpot, y_pred_binary_lstm, y_test_binary_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
-    
-    # Backtest Ensemble Regression
-    ML_algo="Ensemble"
-    print(printing_method_name(" Ensemble Regression Backtest for "+stock_ticker)) 
-    Ensemble_results_regression = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_binary_tpot,y_test_binary_series, stock_ticker,task_type,ML_algo,y_pred_series_tpot, y_test_series)
-   
-    # Backtest LSTM Regression 
-    ML_algo="LSTM"
-    print(printing_method_name(" LSTM Regression Backtest for "+stock_ticker))    
-    #testing the performance
-    LSTM_results_regression = bt.ml_backtest(stock_data, testing_start_date, today,y_pred_binary_lstm,y_test_binary_series, stock_ticker,task_type,ML_algo, y_pred_series_lstm, y_test_series)
-    
-    return Ensemble_results_classification, LSTM_results_classification, Ensemble_results_regression, LSTM_results_regression
 
+    task_type_list = ["classification","regression"]
+    ML_algo_list = ["Ensemble","LSTM"]
+    
+    results = []
+    
+    for task_type in task_type_list:
+        for ML_algo in ML_algo_list:
+            print(printing_method_name(task_type + " " + ML_algo + " " + stock_ticker))
+
+            if task_type =="classification":
+                y_pred_series_tpot, y_pred_series_lstm, y_test_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
+                if ML_algo == "Ensemble":
+                    result = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_series_tpot, y_test_series, stock_ticker,task_type,ML_algo)
+                elif ML_algo == "LSTM":
+                    result = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_series_lstm, y_test_series, stock_ticker,task_type,ML_algo)
+                    
+                
+            elif task_type == "regression":
+                y_pred_series_tpot, y_pred_series_lstm, y_test_series,y_pred_binary_tpot, y_pred_binary_lstm, y_test_binary_series = train_test_data(stock_data,data_sequencing_start_date,training_start_date, testing_start_date,stock_ticker,task_type)
+                if ML_algo == "Ensemble":
+                    result = bt.ml_backtest(stock_data, testing_start_date, today, y_pred_binary_tpot,y_test_binary_series, stock_ticker,task_type,ML_algo,y_pred_series_tpot, y_test_series)
+                elif ML_algo == "LSTM":
+                    result = bt.ml_backtest(stock_data, testing_start_date, today,y_pred_binary_lstm,y_test_binary_series, stock_ticker,task_type,ML_algo, y_pred_series_lstm, y_test_series)
+            results.append(result)
+    return results
+        
 def printing_method_name(text):
     text = pyfiglet.figlet_format(text)
     return text     
